@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🧾 GreenLeaf - Checkout</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background: #f0fdf4;
+    }
+
+    .navbar {
+      background: #2e8b57;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: white;
+    }
+
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+    }
+
+    .navbar a:hover {
+      color: #ffe600;
+    }
+
+    .container {
+      padding: 40px;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2e8b57;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+    }
+
+    .total {
+      font-weight: bold;
+      font-size: 1.2em;
+      color: #2e8b57;
+    }
+
+    .form-section {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .form-section input, .form-section button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    .form-section button {
+      background: #2e8b57;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .form-section button:hover {
+      background: #267047;
+    }
+
+    .remove-btn {
+      color: red;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .back-button {
+      display: inline-block;
+      margin-top: 20px;
+      text-decoration: none;
+      color: #2e8b57;
+      font-weight: bold;
+    }
+
+    .back-button:hover {
+      text-decoration: underline;
+    }
+
+    .center {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <div class="navbar">
+    <div class="logo">GreenLeaf</div>
+    <div>
+      <a href="planthome.html">Home</a>
+      <a href="plantstore.html">Store</a>
+      <a href="plantcheckout.html">Cart</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <h1>Your Cart</h1>
+    <div id="cartItems"></div>
+
+    <div class="form-section">
+      <h2>Checkout Form</h2>
+      <input type="text" id="name" placeholder="Your Full Name" required>
+      <input type="email" id="email" placeholder="Email Address" required>
+      <input type="text" id="address" placeholder="Shipping Address" required>
+      <input type="text" id="coupon" placeholder="Coupon Code (optional)">
+      <button onclick="applyCoupon()">Apply Coupon</button>
+      <button onclick="generateInvoice()">Generate Invoice</button>
+    </div>
+
+    <a href="plantstore.html" class="back-button">⬅ Back to Store</a>
+  </div>
+
+  <script>
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    let couponApplied = false;
+
+    function renderCart() {
+      const cartItemsDiv = document.getElementById("cartItems");
+      if (cart.length === 0) {
+        cartItemsDiv.innerHTML = "<p>Your cart is empty.</p>";
+        return;
+      }
+
+      let html = "<table><tr><th>Plant</th><th>Price</th><th>Quantity</th><th>Total</th><th>Action</th></tr>";
+      let total = 0;
+
+      cart.forEach((item, index) => {
+        const itemTotal = item.price * item.quantity;
+        total += itemTotal;
+        html += `<tr>
+          <td>${item.name}</td>
+          <td>Rs. ${item.price}</td>
+          <td>${item.quantity}</td>
+          <td>Rs. ${itemTotal.toFixed(2)}</td>
+          <td><span class="remove-btn" onclick="removeItem(${index})">Remove</span></td>
+        </tr>`;
+      });
+
+      html += <tr><td colspan="3" class="total">Grand Total</td><td class="total">Rs. ${total.toFixed(2)}</td><td></td></tr>;
+      html += "</table>";
+
+      cartItemsDiv.innerHTML = html;
+    }
+
+    function removeItem(index) {
+      cart.splice(index, 1);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      renderCart();
+    }
+
+    function applyCoupon() {
+      const couponInput = document.getElementById("coupon").value.trim();
+      if (couponInput.toUpperCase() === "GREEN10" && !couponApplied) {
+        cart = cart.map(item => ({
+          ...item,
+          price: item.price * 0.9
+        }));
+        localStorage.setItem("cart", JSON.stringify(cart));
+        couponApplied = true;
+        alert("Coupon applied successfully! 10% discount.");
+        renderCart();
+      } else {
+        alert("Invalid coupon or already applied.");
+      }
+    }
+
+    async function generateInvoice() {
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const address = document.getElementById("address").value;
+
+      if (!name || !email || !address) {
+        alert("Please fill in all details before generating the invoice.");
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ putOnlyUsedFonts:true, orientation:'p', unit:'mm', format:'a4' });
+
+      // Green Header
+      doc.setFillColor(46, 139, 87);
+      doc.rect(0, 0, 210, 30, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(18);
+      doc.text("GreenLeaf Invoice", 70, 20);
+
+      // Customer Details
+      doc.setTextColor(0,0,0);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(12);
+      doc.text(Customer: ${name}, 20, 45);
+      doc.text(Email: ${email}, 20, 52);
+      doc.text(Address: ${address}, 20, 59);
+      doc.text(Date: ${new Date().toLocaleDateString()}, 20, 66);
+
+      // Table Header
+      let y = 80;
+      doc.setFillColor(46, 139, 87);
+      doc.setTextColor(255,255,255);
+      doc.rect(15, y-6, 180, 10, "F");
+      doc.text("Item", 20, y);
+      doc.text("Price", 110, y, { align: "right" });
+      doc.text("Qty", 140, y, { align: "right" });
+      doc.text("Total", 190, y, { align: "right" });
+
+      // Table Rows
+      y += 10;
+      doc.setTextColor(0,0,0);
+      let grandTotal = 0;
+      cart.forEach(item => {
+        const itemTotal = item.price * item.quantity;
+        grandTotal += itemTotal;
+
+        doc.text(item.name, 20, y);
+        doc.text("Rs. " + item.price.toFixed(2), 110, y, { align: "right" });
+        doc.text(${item.quantity}, 140, y, { align: "right" });
+        doc.text("Rs. " + itemTotal.toFixed(2), 190, y, { align: "right" });
+
+        y += 8;
+      });
+
+      // Grand Total
+      y += 5;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.text(Grand Total: Rs. ${grandTotal.toFixed(2)}, 190, y, { align: "right" });
+
+      // Footer Thank You
+      doc.setFontSize(14);
+      doc.setTextColor(46, 139, 87);
+      doc.text("✅ Thank you for shopping with GreenLeaf!", 105, 280, { align: "center" });
+
+      doc.save("GreenLeaf_Invoice.pdf");
+    }
+
+    renderCart();
+  </script>
+</body>
+</html>

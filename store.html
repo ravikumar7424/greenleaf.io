@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GreenLeaf Store</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f3fff3;
+    }
+    .navbar {
+      background: #2e8b57;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .navbar .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: white;
+    }
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+    }
+    .navbar a:hover {
+      color: #ffe600;
+    }
+    .header {
+      text-align: center;
+      padding: 30px;
+    }
+    .header h1 {
+      font-size: 2.5rem;
+      color: #2e8b57;
+    }
+    .filters {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+      gap: 20px;
+    }
+    .filters input, .filters select {
+      padding: 10px;
+      font-size: 1rem;
+    }
+    .store {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 20px;
+    }
+    .product {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      width: 250px;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .product img {
+      width: 100%;
+      border-radius: 10px;
+      height: 200px;
+      object-fit: cover;
+    }
+    .product h3 {
+      margin: 10px 0 5px;
+    }
+    .product p {
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+    }
+    .product .qty-box {
+      margin-bottom: 10px;
+    }
+    .product input[type="number"] {
+      width: 60px;
+      padding: 5px;
+      text-align: center;
+      font-size: 1rem;
+    }
+    .product button {
+      padding: 10px 15px;
+      background: #2e8b57;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .product button:hover {
+      background: #276a47;
+    }
+    .cart-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+    }
+    .cart-link a {
+      text-decoration: none;
+      color: #2e8b57;
+      font-weight: bold;
+    }
+    .cart-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="navbar">
+    <div class="logo">🌿 GreenLeaf</div>
+    <div>
+      <a href="planthome.html">Home</a>
+      <a href="plantstore.html">Store</a>
+      <a href="plantcheckout.html">Cart</a>
+    </div>
+  </div>
+
+  <div class="header">
+    <h1>Shop Plants</h1>
+    <div class="filters">
+      <input type="text" id="searchInput" placeholder="Search by name..." />
+      <select id="categoryFilter">
+        <option value="">All Categories</option>
+        <option value="Indoor">Indoor</option>
+        <option value="Outdoor">Outdoor</option>
+        <option value="Succulent">Succulent</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="store" id="store"></div>
+
+  <div class="cart-link">
+    <a href="plantcheckout.html">Go to Cart 🛒</a>
+  </div>
+
+  <script>
+    const products = [
+      // 🌱 Indoor Basics
+      { id: 1, name: "Aloe Vera", price: 200, image: "https://housing.com/news/wp-content/uploads/2022/12/image2-24.jpg", category: "Indoor" },
+      { id: 2, name: "Money Plant", price: 150, image: "https://cdn.mos.cms.futurecdn.net/YiBBPHgXQRt3gJ4PZ9yWxG.jpg", category: "Indoor" },
+      { id: 3, name: "Snake Plant", price: 180, image: "https://www.gardenanalyst.com/wp-content/uploads/2019/04/Snake-Plant.jpg", category: "Indoor" },
+
+      // 🌼 Outdoor Plants
+      { id: 4, name: "Tulsi", price: 100, image: "https://ayurvalley.com/wp-content/uploads/2019/04/Tulsi-or-holy-basil-Blog.jpg", category: "Outdoor" },
+      { id: 21, name: "Hibiscus", price: 180, image: "https://tse2.mm.bing.net/th/id/OIP.Vv_wryEc2V0AyIhaImjgPQHaFW?r=0&rs=1&pid=ImgDetMain&o=7&rm=3", category: "Outdoor" },
+      { id: 22, name: "Neem Tree", price: 250, image: "https://tse1.mm.bing.net/th/id/OIP.xCK5d2-wiB80Q9ydGAtPJwHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3", category: "Outdoor" },
+      { id: 23, name: "Marigold", price: 120, image: "https://tse1.mm.bing.net/th/id/OIP.CdPjJkv85SgHEE_Gx5SvVQHaE6?r=0&rs=1&pid=ImgDetMain&o=7&rm=3", category: "Outdoor" },
+      { id: 24, name: "Rose Plant", price: 200, image: "https://tse3.mm.bing.net/th/id/OIP.nC9qy-s9JneyvQCw-tIqtwHaLG?r=0&rs=1&pid=ImgDetMain&o=7&rm=3", category: "Outdoor" },
+
+      // 🌵 Succulent Collection
+      { id: 5, name: "Cactus", price: 220, image: "https://th.bing.com/th/id/OIP.fB0NTMa7sGyUYHdaJAG5ogHaFj?r=0&o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3", category: "Succulent" },
+      { id: 6, name: "Golden Barrel Cactus", price: 350, image: "https://succulentcity.com/wp-content/uploads/2019/10/Golden-Barrel-Cactus-Echinocactus-Grusonii-sc.jpg", category: "Succulent" },
+      { id: 7, name: "Bunny Ear Cactus", price: 300, image: "https://i.pinimg.com/1200x/57/f9/f8/57f9f8dab3984ca2d1fae531f4fbcd68.jpg", category: "Succulent" },
+      { id: 8, name: "Moon Cactus", price: 280, image: "https://i.pinimg.com/1200x/9a/f2/e2/9af2e2498908bc41dbfe00e0d0e97a99.jpg", category: "Succulent" },
+
+      // 🌿 Snake Plant Varieties
+      { id: 9, name: "Sansevieria Trifasciata", price: 250, image: "https://i.pinimg.com/736x/08/d2/f9/08d2f9cdd6623555ec775bd292ff8320.jpg", category: "Indoor" },
+      { id: 10, name: "Sansevieria Cylindrica", price: 270, image: "https://i.pinimg.com/1200x/51/40/90/51409069d9be504ada6bd2e41874f7ae.jpg", category: "Indoor" },
+      { id: 11, name: "Sansevieria Moonshine", price: 260, image: "https://i.pinimg.com/1200x/3c/76/e7/3c76e70b89e47026464f7ae6c69ba15d.jpg", category: "Indoor" },
+
+      // 🌱 Unique Plants
+      { id: 12, name: "String of Pearls", price: 320, image: "https://i.pinimg.com/736x/aa/17/91/aa17916401b41dd35e2de07e9b170423.jpg", category: "Indoor" },
+      { id: 13, name: "ZZ Plant", price: 400, image: "https://i.pinimg.com/1200x/d2/fe/84/d2fe84099773d200b91fea2080feab8a.jpg", category: "Indoor" },
+      { id: 14, name: "Lithops (Living Stones)", price: 220, image: "https://i.pinimg.com/736x/88/a3/5c/88a35cd45ad7fdf6f073d3ab6d66fffc.jpg", category: "Succulent" },
+      { id: 15, name: "Chinese Money Plant", price: 250, image: "https://i.pinimg.com/736x/37/c8/5a/37c85aa7c62cdf5eb39cf908c90498c6.jpg", category: "Indoor" },
+      { id: 16, name: "Bird’s Nest Fern", price: 280, image: "https://i.pinimg.com/736x/3f/34/45/3f3445c649b1c70af65abb2572317111.jpg", category: "Indoor" },
+      { id: 17, name: "Air Plant (Tillandsia)", price: 180, image: "https://i.pinimg.com/1200x/54/64/72/546472d473ba3e818a28ecfa4cf0795f.jpg", category: "Indoor" },
+      { id: 18, name: "Fittonia (Nerve Plant)", price: 200, image: "https://i.pinimg.com/736x/c5/1d/41/c51d41907292ca8227cedb30c46ae747.jpg", category: "Indoor" },
+      { id: 19, name: "Calathea Orbifolia", price: 300, image: "https://i.pinimg.com/1200x/cf/e7/66/cfe7663285a258b59a2aed1d19494fa6.jpg", category: "Indoor" },
+      { id: 20, name: "Haworthia Cooperi", price: 240, image: "https://i.pinimg.com/1200x/b4/f9/1e/b4f91ef1ca637f002e6c77c35d5ab870.jpg", category: "Succulent" },
+      { id: 25, name: "Alocasia Polly", price: 350, image: "https://i.pinimg.com/736x/d2/93/a9/d293a9e7b85cce60533a76c109fd441e.jpg", category: "Indoor" }
+    ];
+
+    const store = document.getElementById("store");
+    const searchInput = document.getElementById("searchInput");
+    const categoryFilter = document.getElementById("categoryFilter");
+
+    function displayProducts(filteredProducts) {
+      store.innerHTML = "";
+      filteredProducts.forEach(p => {
+        const div = document.createElement("div");
+        div.className = "product";
+        div.innerHTML = `
+          <img src="${p.image}" alt="${p.name}" />
+          <h3>${p.name}</h3>
+          <p>₹${p.price}</p>
+          <div class="qty-box">
+            <label for="qty-${p.id}">Qty:</label>
+            <input id="qty-${p.id}" type="number" value="1" min="1"/>
+          </div>
+          <button onclick="addToCart(${p.id})">Add to Cart</button>
+        `;
+        store.appendChild(div);
+      });
+    }
+
+    function addToCart(productId) {
+      let cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const product = products.find(p => p.id === productId);
+      const qtyInput = document.getElementById(qty-${productId});
+      const quantity = parseInt(qtyInput.value) || 1;
+
+      const existing = cart.find(item => item.id === productId);
+      if (existing) {
+        existing.quantity += quantity;
+      } else {
+        cart.push({ ...product, quantity: quantity });
+      }
+      localStorage.setItem("cart", JSON.stringify(cart));
+      alert(${quantity} x ${product.name} added to cart!);
+    }
+
+    function filterProducts() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const selectedCategory = categoryFilter.value;
+      const filtered = products.filter(p => {
+        const matchName = p.name.toLowerCase().includes(searchTerm);
+        const matchCategory = selectedCategory ? p.category === selectedCategory : true;
+        return matchName && matchCategory;
+      });
+      displayProducts(filtered);
+    }
+
+    searchInput.addEventListener("input", filterProducts);
+    categoryFilter.addEventListener("change", filterProducts);
+
+    displayProducts(products);
+  </script>
+</body>
+</html>
+ss
